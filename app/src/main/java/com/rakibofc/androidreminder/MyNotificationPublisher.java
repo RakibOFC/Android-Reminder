@@ -23,7 +23,7 @@ public class MyNotificationPublisher extends BroadcastReceiver {
 
             int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel notificationChannel = new NotificationChannel(MainActivity.NOTIFICATION_CHANNEL_ID,"NOTIFICATION_CHANNEL_NAME",importance);
-            assert notificationManager !=null;
+            assert notificationManager != null;
             notificationManager.createNotificationChannel(notificationChannel);
         }
 

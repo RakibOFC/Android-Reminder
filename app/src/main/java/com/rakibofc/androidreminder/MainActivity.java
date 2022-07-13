@@ -3,34 +3,49 @@ package com.rakibofc.androidreminder;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.icu.util.Calendar;
 import android.os.Bundle;
-import android.os.SystemClock;
+import android.util.Log;
 import android.widget.Button;
+import android.widget.TextView;
+
+import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-    public Button button5, button10, button15;
+    public TextView textView;
     public static String NOTIFICATION_CHANNEL_ID = "1001";
     public static String default_notification_id = "default";
+    public String time;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        button5 = findViewById(R.id.button5);
-        button10 = findViewById(R.id.button10);
-        button15 = findViewById(R.id.button15);
+        textView = findViewById(R.id.text_view);
 
-        scheduleNotification(getNotification("Notification from MainActivity"));
+        time = "10:34 pm";
+
+        try {
+            scheduleNotification(getNotification());
+        } catch (ParseException e) {
+            e.printStackTrace();
+            Log.e("HOUR_OF_DAY", "Catch");
+        }
     }
 
     //schedule notification
-    private void scheduleNotification(Notification notification){
+    @SuppressLint({"SetTextI18n", "NewApi"})
+    private void scheduleNotification(Notification notification) throws ParseException {
 
         Intent notificationIntent = new Intent(this, MyNotificationPublisher.class);
 
@@ -41,15 +56,33 @@ public class MainActivity extends AppCompatActivity {
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, 5000, 6000, pendingIntent);
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a");
+        Date date = simpleDateFormat.parse(time);
+
+        assert date != null;
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int min = calendar.get(Calendar.MINUTE);
+
+        Calendar calendarTime = Calendar.getInstance();
+
+        calendarTime.set(Calendar.HOUR_OF_DAY, hour);
+        calendarTime.set(Calendar.MINUTE, min);
+        calendarTime.set(Calendar.SECOND, 45);
+
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendarTime.getTimeInMillis(), 5000, pendingIntent);
+
+        textView.setText(hour + ":" + min);
     }
 
-    private Notification getNotification(String content){
+    private Notification getNotification(){
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, default_notification_id);
-
         builder.setContentTitle("Schedule Notification");
-        builder.setContentText(content);
+        builder.setContentText("Notification from MainActivity");
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setAutoCancel(true);
         builder.setChannelId(NOTIFICATION_CHANNEL_ID);
