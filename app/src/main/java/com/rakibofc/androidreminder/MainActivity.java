@@ -9,15 +9,13 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.TextView;
 
-import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -41,12 +39,12 @@ public class MainActivity extends AppCompatActivity {
         Date date = new Date();
         long dateInMillis = date.getTime();
 
-        dateInMillis += 5000;
+        dateInMillis += 10000;
 
         time = simpleDateFormat.format(dateInMillis);
 
         try {
-            scheduleNotification(getNotification());
+            scheduleNotification();
         } catch (ParseException e) {
             e.printStackTrace();
             Log.e("HOUR_OF_DAY", "Catch");
@@ -54,21 +52,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //schedule notification
-    @SuppressLint("UnspecifiedImmutableFlag")
-    private void scheduleNotification(Notification notification) throws ParseException {
-
-        Intent notificationIntent = new Intent(this, MyNotificationPublisher.class);
-
-        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION_ID, 1);
-        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION, notification);
-
-        PendingIntent pendingIntent;
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        } else {
-            pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        }
+    private void scheduleNotification() throws ParseException {
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -89,17 +73,32 @@ public class MainActivity extends AppCompatActivity {
         calendarTime.set(Calendar.MINUTE, min);
         calendarTime.set(Calendar.SECOND, sec);
 
-        alarmManager.set(AlarmManager.RTC_WAKEUP, calendarTime.getTimeInMillis(), pendingIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, calendarTime.getTimeInMillis(), getPendingIntent(getNotification()));
 
         String tempStr = hour + ":" + min + ":" + sec;
         textView.setText(tempStr);
     }
 
+    @SuppressLint("UnspecifiedImmutableFlag")
+    private PendingIntent getPendingIntent(Notification notification) {
+
+        Intent notificationIntent = new Intent(this, MyNotificationPublisher.class);
+
+        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION_ID, 1);
+        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION, notification);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            return PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        } else {
+            return PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
+    }
+
     private Notification getNotification() {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, default_notification_id);
-        builder.setContentTitle("Schedule Notification");
-        builder.setContentText("Notification from MainActivity");
+        builder.setContentTitle("Android Reminder");
+        builder.setContentText("This notification from BroadcastReceiver");
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setAutoCancel(true);
         builder.setChannelId(NOTIFICATION_CHANNEL_ID);

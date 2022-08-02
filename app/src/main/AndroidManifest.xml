@@ -3,7 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.rakibofc.androidreminder">
 
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:allowBackup="true"
@@ -15,6 +18,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidReminder"
         tools:targetApi="31">
+        <service
+            android:name=".MyService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -25,8 +34,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".MyNotificationPublisher"/>
-
+        <receiver android:name=".MyNotificationPublisher" />
     </application>
 
 </manifest>
