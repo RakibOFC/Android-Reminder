@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //schedule notification
-    @SuppressLint({"SetTextI18n", "NewApi"})
+    @SuppressLint("UnspecifiedImmutableFlag")
     private void scheduleNotification(Notification notification) throws ParseException {
 
         Intent notificationIntent = new Intent(this, MyNotificationPublisher.class);
@@ -62,7 +62,13 @@ public class MainActivity extends AppCompatActivity {
         notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION_ID, 1);
         notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION, notification);
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        } else {
+            pendingIntent = PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -83,9 +89,10 @@ public class MainActivity extends AppCompatActivity {
         calendarTime.set(Calendar.MINUTE, min);
         calendarTime.set(Calendar.SECOND, sec);
 
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendarTime.getTimeInMillis(), 5000, pendingIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, calendarTime.getTimeInMillis(), pendingIntent);
 
-        textView.setText(hour + ":" + min + ":" + sec);
+        String tempStr = hour + ":" + min + ":" + sec;
+        textView.setText(tempStr);
     }
 
     private Notification getNotification() {
