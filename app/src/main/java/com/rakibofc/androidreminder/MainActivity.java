@@ -20,12 +20,15 @@ import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     public TextView textView;
     public static String NOTIFICATION_CHANNEL_ID = "1001";
     public static String default_notification_id = "default";
     public String time;
+    SimpleDateFormat simpleDateFormat;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +36,14 @@ public class MainActivity extends AppCompatActivity {
 
         textView = findViewById(R.id.text_view);
 
-        time = "10:34 pm";
+        simpleDateFormat = new SimpleDateFormat("hh:mm:ss a", Locale.getDefault());
+
+        Date date = new Date();
+        long dateInMillis = date.getTime();
+
+        dateInMillis += 5000;
+
+        time = simpleDateFormat.format(dateInMillis);
 
         try {
             scheduleNotification(getNotification());
@@ -56,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a");
         Date date = simpleDateFormat.parse(time);
 
         assert date != null;
@@ -66,19 +75,20 @@ public class MainActivity extends AppCompatActivity {
 
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         int min = calendar.get(Calendar.MINUTE);
+        int sec = calendar.get(Calendar.SECOND);
 
         Calendar calendarTime = Calendar.getInstance();
 
         calendarTime.set(Calendar.HOUR_OF_DAY, hour);
         calendarTime.set(Calendar.MINUTE, min);
-        calendarTime.set(Calendar.SECOND, 45);
+        calendarTime.set(Calendar.SECOND, sec);
 
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendarTime.getTimeInMillis(), 5000, pendingIntent);
 
-        textView.setText(hour + ":" + min);
+        textView.setText(hour + ":" + min + ":" + sec);
     }
 
-    private Notification getNotification(){
+    private Notification getNotification() {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, default_notification_id);
         builder.setContentTitle("Schedule Notification");
