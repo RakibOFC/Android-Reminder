@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         Date date = new Date();
         long dateInMillis = date.getTime();
 
-        dateInMillis += 50000;
+        dateInMillis += 1000;
 
         time = simpleDateFormat.format(dateInMillis);
         textView.setText(time);

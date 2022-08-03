@@ -48,7 +48,7 @@ public class SetReminderService extends Service {
         String time = intent.getStringExtra("time");
 
         try {
-            scheduleNotification("11:05:20 pm"); // pass `time` as parameter
+            scheduleNotification(time); // pass `time` as parameter
         } catch (ParseException e) {
             e.printStackTrace();
         }

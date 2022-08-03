@@ -40,6 +40,6 @@ public class MyNotificationPublisher extends BroadcastReceiver {
 
         Intent serviceIntent = new Intent(context, MyService.class);
 
-        // context.startService(serviceIntent);
+        context.startService(serviceIntent);
     }
 }
