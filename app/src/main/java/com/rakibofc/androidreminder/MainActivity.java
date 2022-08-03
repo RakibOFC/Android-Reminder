@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -22,8 +23,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     public TextView textView;
-    public static String NOTIFICATION_CHANNEL_ID = "1001";
-    public static String default_notification_id = "default";
     public String time;
     SimpleDateFormat simpleDateFormat;
 
@@ -39,70 +38,21 @@ public class MainActivity extends AppCompatActivity {
         Date date = new Date();
         long dateInMillis = date.getTime();
 
-        dateInMillis += 10000;
+        dateInMillis += 5000;
 
         time = simpleDateFormat.format(dateInMillis);
+        textView.setText(time);
 
+        /*
         try {
             scheduleNotification();
         } catch (ParseException e) {
             e.printStackTrace();
-            Log.e("HOUR_OF_DAY", "Catch");
         }
-    }
+        */
 
-    //schedule notification
-    private void scheduleNotification() throws ParseException {
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-        Date date = simpleDateFormat.parse(time);
-
-        assert date != null;
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int min = calendar.get(Calendar.MINUTE);
-        int sec = calendar.get(Calendar.SECOND);
-
-        Calendar calendarTime = Calendar.getInstance();
-
-        calendarTime.set(Calendar.HOUR_OF_DAY, hour);
-        calendarTime.set(Calendar.MINUTE, min);
-        calendarTime.set(Calendar.SECOND, sec);
-
-        alarmManager.set(AlarmManager.RTC_WAKEUP, calendarTime.getTimeInMillis(), getPendingIntent(getNotification()));
-
-        String tempStr = hour + ":" + min + ":" + sec;
-        textView.setText(tempStr);
-    }
-
-    @SuppressLint("UnspecifiedImmutableFlag")
-    private PendingIntent getPendingIntent(Notification notification) {
-
-        Intent notificationIntent = new Intent(this, MyNotificationPublisher.class);
-
-        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION_ID, 1);
-        notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION, notification);
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            return PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-        } else {
-            return PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        }
-    }
-
-    private Notification getNotification() {
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, default_notification_id);
-        builder.setContentTitle("Android Reminder");
-        builder.setContentText("This notification from BroadcastReceiver");
-        builder.setSmallIcon(R.mipmap.ic_launcher);
-        builder.setAutoCancel(true);
-        builder.setChannelId(NOTIFICATION_CHANNEL_ID);
-
-        return builder.build();
+        Intent serviceIntent = new Intent(getApplicationContext(), SetReminderService.class);
+        serviceIntent.putExtra("time", time);
+        startService(serviceIntent);
     }
 }

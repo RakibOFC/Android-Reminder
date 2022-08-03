@@ -2,14 +2,14 @@ package com.rakibofc.androidreminder;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import static com.rakibofc.androidreminder.SetReminderService.NOTIFICATION_CHANNEL_ID;
+
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.media.AudioManager;
 import android.os.Build;
 import android.util.Log;
 
@@ -27,7 +27,7 @@ public class MyNotificationPublisher extends BroadcastReceiver {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel notificationChannel = new NotificationChannel(MainActivity.NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
             assert notificationManager != null;
             notificationManager.createNotificationChannel(notificationChannel);
         }
