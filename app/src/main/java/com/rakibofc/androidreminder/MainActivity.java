@@ -38,18 +38,10 @@ public class MainActivity extends AppCompatActivity {
         Date date = new Date();
         long dateInMillis = date.getTime();
 
-        dateInMillis += 5000;
+        dateInMillis += 50000;
 
         time = simpleDateFormat.format(dateInMillis);
         textView.setText(time);
-
-        /*
-        try {
-            scheduleNotification();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        */
 
         Intent serviceIntent = new Intent(getApplicationContext(), SetReminderService.class);
         serviceIntent.putExtra("time", time);
