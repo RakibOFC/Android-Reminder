@@ -21,14 +21,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class SetReminderService extends Service {
 
     public static String NOTIFICATION_CHANNEL_ID = "1001";
     public static String default_notification_id = "default";
-
-    public SetReminderService() {
-    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -45,10 +43,8 @@ public class SetReminderService extends Service {
             startForeground(1001, notifyApi25OrLower("Tap to show prayer time", "It helps to send reminder and other services"));
         }
 
-        String time = intent.getStringExtra("time");
-
         try {
-            scheduleNotification(time); // pass `time` as parameter
+            scheduleNotification();
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -57,30 +53,23 @@ public class SetReminderService extends Service {
     }
 
     //schedule notification
-    private void scheduleNotification(String time) throws ParseException {
+    private void scheduleNotification() throws ParseException {
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm:ss a", Locale.getDefault());
-
-        Date date = simpleDateFormat.parse(time);
-
-        assert date != null;
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int min = calendar.get(Calendar.MINUTE);
-        int sec = calendar.get(Calendar.SECOND);
-
         Calendar calendarTime = Calendar.getInstance();
 
-        calendarTime.set(Calendar.HOUR_OF_DAY, hour);
-        calendarTime.set(Calendar.MINUTE, min);
-        calendarTime.set(Calendar.SECOND, sec);
+        calendarTime.set(Calendar.HOUR_OF_DAY, 22);
+        calendarTime.set(Calendar.MINUTE, 30);
+        calendarTime.set(Calendar.SECOND, 10);
 
-        alarmManager.set(AlarmManager.RTC_WAKEUP, calendarTime.getTimeInMillis(), getPendingIntent(getNotification()));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendarTime.getTimeInMillis(), getPendingIntent(getNotification()));
+        } else {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendarTime.getTimeInMillis(), getPendingIntent(getNotification()));
+        }
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")
@@ -92,9 +81,9 @@ public class SetReminderService extends Service {
         notificationIntent.putExtra(MyNotificationPublisher.NOTIFICATION, notification);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            return PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            return PendingIntent.getBroadcast(this, 195, notificationIntent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         } else {
-            return PendingIntent.getBroadcast(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            return PendingIntent.getBroadcast(this, 195, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
     }
 

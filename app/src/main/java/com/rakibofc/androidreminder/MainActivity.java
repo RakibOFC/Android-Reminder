@@ -22,29 +22,13 @@ import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-    public TextView textView;
-    public String time;
-    SimpleDateFormat simpleDateFormat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textView = findViewById(R.id.text_view);
-
-        simpleDateFormat = new SimpleDateFormat("hh:mm:ss a", Locale.getDefault());
-
-        Date date = new Date();
-        long dateInMillis = date.getTime();
-
-        dateInMillis += 1000;
-
-        time = simpleDateFormat.format(dateInMillis);
-        textView.setText(time);
-
         Intent serviceIntent = new Intent(getApplicationContext(), SetReminderService.class);
-        serviceIntent.putExtra("time", time);
         startService(serviceIntent);
     }
 }
